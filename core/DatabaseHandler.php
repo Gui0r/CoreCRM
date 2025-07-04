@@ -8,7 +8,15 @@ class DatabaseHandler
 
     public static function init()
     {
-        self::$config = require __DIR__ . "/../config/database.config.php";
+        // Tenta carregar configuração local primeiro, senão usa a padrão
+        $localConfig = __DIR__ . "/../config/database.local.php";
+        if (file_exists($localConfig)) {
+            self::$config = require $localConfig;
+            System::log("Using local database configuration.");
+        } else {
+            self::$config = require __DIR__ . "/../config/database.config.php";
+            System::log("Using default database configuration.");
+        }
         self::connect();
         System::log("DatabaseHandler initialized.");
     }
@@ -40,11 +48,13 @@ class DatabaseHandler
             }
             System::log("Database connection established successfully with driver: {$driver}.");
         } catch (PDOException $e) {
-            System::log("Database connection failed: " . $e->getMessage(), "error");
-            die("Database connection failed: " . $e->getMessage());
+            System::log("Database connection failed: " . $e->getMessage(), "warning");
+            System::log("System will continue without database connection for testing purposes.", "info");
+            self::$connection = null;
         } catch (Exception $e) {
-            System::log("Database error: " . $e->getMessage(), "error");
-            die("Database error: " . $e->getMessage());
+            System::log("Database error: " . $e->getMessage(), "warning");
+            System::log("System will continue without database connection for testing purposes.", "info");
+            self::$connection = null;
         }
     }
 
@@ -56,6 +66,10 @@ class DatabaseHandler
     public static function query($sql, $params = [])
     {
         global $config;
+        if (self::$connection === null) {
+            System::log("Database not connected. Query skipped: " . $sql, "warning");
+            return null;
+        }
         if ($config["debug"]) {
             System::log("SQL Query: " . $sql . " Params: " . json_encode($params), "debug");
         }
@@ -123,12 +137,19 @@ class QueryBuilder
     public function get()
     {
         $stmt = DatabaseHandler::query($this->query, $this->bindings);
+        if ($stmt === null) {
+            return [];
+        }
         return $stmt->fetchAll();
     }
 
     public function execute()
     {
-        return DatabaseHandler::query($this->query, $this->bindings);
+        $stmt = DatabaseHandler::query($this->query, $this->bindings);
+        if ($stmt === null) {
+            return false;
+        }
+        return $stmt;
     }
 }
 

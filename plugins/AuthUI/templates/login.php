@@ -1,23 +1,10 @@
-<?php
-$base = dirname($_SERVER['SCRIPT_NAME']);
-if ($base === '/' || $base === '\\') $base = '';
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Login - CoreCRM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- CSS customizado -->
-    <link rel="stylesheet" href="<?php echo $base; ?>/plugins/AuthUI/assets/css/auth.css">
-    <!-- Anime.js -->
-    <script src="<?php echo $base; ?>/plugins/AuthUI/assets/js/anime.min.js"></script>
-    <!-- JS customizado -->
-    <script src="<?php echo $base; ?>/plugins/AuthUI/assets/js/auth.js" defer></script>
+    <!-- Os assets são carregados via hook do plugin -->
 </head>
 <body>
 <div class="auth-container">
@@ -47,12 +34,12 @@ if ($base === '/' || $base === '\\') $base = '';
                 <?php echo htmlspecialchars($success); ?>
             </div>
         <?php endif; ?>
-        <form class="auth-form" method="post" action="/login" autocomplete="on" spellcheck="false">
+        <form class="auth-form" method="post" action="/auth/login" autocomplete="on" spellcheck="false">
             <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect ?? '/admin'); ?>">
             <div class="form-group">
-                <label class="form-label" for="user">Usuário</label>
+                <label class="form-label" for="username">Usuário ou E-mail</label>
                 <div class="input-wrapper">
-                    <input class="form-input" type="text" id="user" name="user" placeholder="Digite seu usuário" required autofocus autocomplete="username">
+                    <input class="form-input" type="text" id="username" name="username" placeholder="Digite seu usuário ou e-mail" required autofocus autocomplete="username">
                     <span class="input-icon">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.485 0 4.797.657 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </span>
@@ -95,4 +82,4 @@ if ($base === '/' || $base === '\\') $base = '';
     </div>
 </div>
 </body>
-</html>
+</html> 

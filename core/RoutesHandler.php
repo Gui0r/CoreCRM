@@ -46,6 +46,12 @@ class RoutesHandler
     public static function dispatch()
     {
         $uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+        // Remover o subdiretório base se necessário
+        $base = dirname($_SERVER['SCRIPT_NAME']);
+        if ($base !== '/' && strpos($uri, $base) === 0) {
+            $uri = substr($uri, strlen($base));
+            if ($uri === '') $uri = '/';
+        }
         $method = $_SERVER["REQUEST_METHOD"];
 
         foreach (self::$routes as $route) {

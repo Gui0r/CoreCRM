@@ -14,13 +14,14 @@ class PluginHandler
     private static function loadPlugins()
     {
         $pluginsDir = __DIR__ . "/../plugins/";
+        System::log("Procurando plugins em: " . $pluginsDir);
+        $pluginFolders = array_filter(glob($pluginsDir . "*"), "is_dir");
+        System::log("Pastas encontradas: " . print_r($pluginFolders, true));
         if (!is_dir($pluginsDir)) {
             mkdir($pluginsDir, 0777, true);
             System::log("Plugins directory created: {$pluginsDir}");
             return;
         }
-
-        $pluginFolders = array_filter(glob($pluginsDir . "*"), "is_dir");
 
         foreach ($pluginFolders as $folder) {
             $pluginSlug = basename($folder);
@@ -36,7 +37,8 @@ class PluginHandler
                     self::$activePlugins[$pluginSlug] = $pluginData;
                     System::log("Loading plugin: " . $pluginData["name"] . " ({$pluginSlug})");
 
-                    // Include main.php to register routes, hooks, etc.
+                    // Inclui main.php do plugin e loga
+                    System::log("Incluindo plugin: $mainPhpPath");
                     require_once $mainPhpPath;
 
                     // Register plugin routes
@@ -57,6 +59,8 @@ class PluginHandler
             }
         }
         System::log("Finished loading plugins.");
+        // Logar todas as rotas registradas
+        System::log("Rotas registradas: " . print_r(RoutesHandler::getRoutes(), true));
     }
 
     public static function getActivePlugins()

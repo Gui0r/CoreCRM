@@ -1,0 +1,29 @@
+{
+  "name": "AuthUI",
+  "slug": "auth-ui",
+  "version": "1.0.0",
+  "description": "Plugin para interface de autenticação moderna com Tailwind CSS e Anime.js",
+  "author": "CoreCRM Team",
+  "routes": [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/auth/reset-password"
+  ],
+  "hooks": [
+    "before_login",
+    "after_login",
+    "before_logout",
+    "after_logout"
+  ],
+  "assets": {
+    "css": [
+      "assets/css/auth.css"
+    ],
+    "js": [
+      "assets/js/anime.min.js",
+      "assets/js/auth.js"
+    ]
+  },
+  "dependencies": []
+} 
