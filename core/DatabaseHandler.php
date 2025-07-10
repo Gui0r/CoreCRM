@@ -19,29 +19,35 @@ class DatabaseHandler
 {
     private static $connection;
     private static $config;
+    private static $initialized = false;
 
     /**
-     * Inicializa o manipulador de banco de dados. Carrega as configura es
-     * de banco de dados do arquivo de configura o e estabelece a conex o
+     * Inicializa o manipulador de banco de dados. Carrega as configurações
+     * de banco de dados do arquivo de configuração e estabelece a conexão
      * com o banco de dados.
      *
      * @return void
      */
     public static function init()
     {
+        if (self::$initialized) {
+            return; // Já foi inicializado
+        }
+        
         self::$config = require __DIR__ . "/../config/database.config.php";
         self::connect();
+        self::$initialized = true;
         System::log("DatabaseHandler initialized.");
     }
 
     /**
-     * Estabelece a conex o com o banco de dados. Ele seleciona o driver
-     * correto com base na configura o e ajusta as op es de conex o
+     * Estabelece a conexão com o banco de dados. Ele seleciona o driver
+     * correto com base na configuração e ajusta as opções de conexão
      * do PDO.
      *
-     * @throws Exception Se o driver de banco de dados especificado n o
+     * @throws Exception Se o driver de banco de dados especificado não
      *                   for suportado.
-     * @throws PDOException Se a conex o com o banco de dados falhar.
+     * @throws PDOException Se a conexão com o banco de dados falhar.
      *
      * @return void
      */
@@ -73,17 +79,19 @@ class DatabaseHandler
             System::log("Database connection established successfully with driver: {$driver}.");
         } catch (PDOException $e) {
             System::log("Database connection failed: " . $e->getMessage(), "error");
-            die("Database connection failed: " . $e->getMessage());
+            // Não mata a aplicação, apenas loga o erro
+            self::$connection = null;
         } catch (Exception $e) {
             System::log("Database error: " . $e->getMessage(), "error");
-            die("Database error: " . $e->getMessage());
+            // Não mata a aplicação, apenas loga o erro
+            self::$connection = null;
         }
     }
 
     /**
-     * Retorna a conex o estabelecida com o banco de dados.
+     * Retorna a conexão estabelecida com o banco de dados.
      *
-     * @return PDO A conex o estabelecida com o banco de dados.
+     * @return PDO|null A conexão estabelecida com o banco de dados ou null se não conectado.
      */
     public static function getConnection()
     {
@@ -91,22 +99,45 @@ class DatabaseHandler
     }
 
     /**
-     * Executa uma consulta SQL com par metros.
+     * Verifica se há uma conexão ativa com o banco de dados.
+     *
+     * @return bool True se há conexão, false caso contrário.
+     */
+    public static function isConnected()
+    {
+        return self::$connection !== null;
+    }
+
+    /**
+     * Executa uma consulta SQL com parâmetros.
      *
      * @param string $sql A consulta SQL a ser executada.
-     * @param array $params Os par metros da consulta SQL.
+     * @param array $params Os parâmetros da consulta SQL.
      *
-     * @return PDOStatement O objeto com a consulta executada.
+     * @return PDOStatement|null O objeto com a consulta executada ou null se não há conexão.
      */
     public static function query($sql, $params = [])
     {
         global $config;
+        
+        // Se não há conexão, apenas loga e retorna null
+        if (!self::isConnected()) {
+            System::log("Database query skipped (no connection): " . $sql, "warning");
+            return null;
+        }
+        
         if ($config["debug"]) {
             System::log("SQL Query: " . $sql . " Params: " . json_encode($params), "debug");
         }
-        $stmt = self::$connection->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+        
+        try {
+            $stmt = self::$connection->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (Exception $e) {
+            System::log("Database query error: " . $e->getMessage(), "error");
+            return null;
+        }
     }
 }
 

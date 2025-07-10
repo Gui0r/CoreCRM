@@ -1,0 +1,31 @@
+{
+  "name": "corecrm",
+  "version": "1.0.0",
+  "description": "**CoreCRM** é um sistema de CRM (Customer Relationship Management) modular, construído em PHP puro, com arquitetura baseada em plugins, sistema de rotas dinâmicas, autenticação, API REST e um robusto sistema de *hooks* e *actions* para extensão de funcionalidades.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./input.css -o ./output.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gui0r/CoreCRM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gui0r/CoreCRM/issues"
+  },
+  "homepage": "https://github.com/Gui0r/CoreCRM#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.0.0",
+    "postcss": "^8.0.0",
+    "autoprefixer": "^10.0.0"
+  }
+}
+
+
